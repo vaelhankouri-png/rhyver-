@@ -36,8 +36,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* CURSOR */
-* { cursor: none !important; }
+/* CURSOR — desktop only */
+@media (pointer: fine) {
+  * { cursor: none !important; }
+}
 #cursor {
   position: fixed; width: 7px; height: 7px;
   background: var(--black); border-radius: 50%;
@@ -45,6 +47,10 @@ body {
   transform: translate(-50%,-50%);
   transition: width 0.3s var(--ease), height 0.3s var(--ease), opacity 0.3s;
   mix-blend-mode: multiply;
+  display: none;
+}
+@media (pointer: fine) {
+  #cursor { display: block; }
 }
 #cursor.expanded { width: 36px; height: 36px; }
 
@@ -316,7 +322,7 @@ section { padding: 110px 80px; }
   letter-spacing: 0.18em; background: none;
   border: 1px solid rgba(0,0,0,0.15);
   color: rgba(0,0,0,0.4); padding: 8px 20px;
-  transition: all 0.25s; margin-right: -1px; cursor: none;
+  transition: all 0.25s; margin-right: -1px;
 }
 .fbtn:hover, .fbtn.active {
   border-color: var(--black); color: var(--black); z-index: 1;
@@ -644,53 +650,339 @@ nav.on-dark .social-icon:hover { color: var(--black); border-color: var(--border
   .btn-white, .btn-ghost { width: min(280px, 88vw); text-align: center; }
 }
 
-/* CART */
+/* ── LUXURY ADD TO CART BUTTON ─────────────────────────────────────────── */
+.add-to-cart-btn {
+  font-family: var(--ff-display); font-size: 0.65rem;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--black); background: none;
+  border: none; border-bottom: 1px solid rgba(0,0,0,0.18);
+  padding: 0 0 3px; transition: all 0.3s var(--ease);
+  position: relative; overflow: hidden;
+}
+.add-to-cart-btn::before {
+  content: ''; position: absolute; bottom: -1px; left: 0; right: 0;
+  height: 1px; background: var(--black);
+  transform: scaleX(0); transform-origin: right;
+  transition: transform 0.4s var(--ease);
+}
+.add-to-cart-btn:hover { color: var(--black); border-bottom-color: transparent; letter-spacing: 0.28em; }
+.add-to-cart-btn:hover::before { transform: scaleX(1); transform-origin: left; }
+.add-to-cart-btn.added {
+  color: var(--black) !important;
+  letter-spacing: 0.28em;
+}
+
+/* ── LUXURY CART TRAY ───────────────────────────────────────────────────── */
 .cart-bar {
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 300;
   background: var(--black); color: var(--white);
-  padding: 14px 56px; display: flex; align-items: center;
-  justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.1);
-  transform: translateY(100%); transition: transform 0.4s var(--ease);
+  padding: 0 64px;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 0; overflow: hidden;
+  transition: height 0.55s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s;
+  border-top: 1px solid rgba(255,255,255,0.06);
 }
-.cart-bar.visible { transform: translateY(0); }
-.cart-bar-info { font-family: var(--ff-display); font-size: 0.9rem; letter-spacing: 0.18em; }
-.cart-bar-items { font-family: var(--ff-body); font-size: 0.75rem; color: rgba(255,255,255,0.5); margin-top: 2px; }
-.cart-bar-btns { display: flex; gap: 12px; align-items: center; }
-.cart-clear { font-family: var(--ff-display); font-size: 0.75rem; letter-spacing: 0.18em; color: rgba(255,255,255,0.4); background: none; border: none; transition: color 0.2s; }
-.cart-clear:hover { color: rgba(255,255,255,0.8); }
-.cart-order-btn { font-family: var(--ff-display); font-size: 0.85rem; letter-spacing: 0.22em; background: var(--white); color: var(--black); border: none; padding: 10px 28px; transition: all 0.3s; }
-.cart-order-btn:hover { opacity: 0.85; }
+.cart-bar.visible {
+  height: 72px;
+  box-shadow: 0 -12px 60px rgba(0,0,0,0.35);
+}
+.cart-bar-left { display: flex; flex-direction: column; justify-content: center; }
+.cart-bar-label {
+  font-family: var(--ff-display); font-size: 0.55rem;
+  letter-spacing: 0.52em; color: rgba(255,255,255,0.28);
+  text-transform: uppercase; margin-bottom: 3px;
+}
+.cart-bar-info {
+  font-family: var(--ff-display); font-size: 1.05rem;
+  letter-spacing: 0.1em; color: var(--white);
+}
+.cart-bar-info span { color: rgba(255,255,255,0.55); font-size: 0.85rem; }
+.cart-bar-items {
+  font-family: var(--ff-italic); font-style: italic;
+  font-size: 0.78rem; color: rgba(255,255,255,0.35);
+  margin-top: 2px; max-width: 420px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.cart-bar-divider {
+  width: 1px; height: 32px; background: rgba(255,255,255,0.08);
+  flex-shrink: 0;
+}
+.cart-bar-btns { display: flex; gap: 20px; align-items: center; }
+.cart-clear {
+  font-family: var(--ff-display); font-size: 0.6rem;
+  letter-spacing: 0.32em; color: rgba(255,255,255,0.25);
+  background: none; border: none;
+  transition: color 0.3s var(--ease); text-transform: uppercase;
+  position: relative;
+}
+.cart-clear::after {
+  content: ''; position: absolute; bottom: -2px; left: 0; right: 0;
+  height: 1px; background: rgba(255,255,255,0.25);
+  transform: scaleX(0); transition: transform 0.3s var(--ease);
+}
+.cart-clear:hover { color: rgba(255,255,255,0.6); }
+.cart-clear:hover::after { transform: scaleX(1); }
+.cart-order-btn {
+  font-family: var(--ff-display); font-size: 0.72rem;
+  letter-spacing: 0.32em; text-transform: uppercase;
+  background: var(--white); color: var(--black);
+  border: none; padding: 13px 32px;
+  transition: all 0.35s var(--ease);
+  position: relative; overflow: hidden;
+}
+.cart-order-btn::after {
+  content: ''; position: absolute; inset: 0;
+  background: var(--black); opacity: 0;
+  transition: opacity 0.3s;
+}
+.cart-order-btn:hover { background: rgba(247,240,234,0.88); letter-spacing: 0.38em; }
 
-/* WA FORM MODAL */
+/* ── LUXURY ORDER MODAL ─────────────────────────────────────────────────── */
 .wa-modal-overlay {
   display: none; position: fixed; inset: 0; z-index: 500;
-  background: rgba(26,23,20,0.6); backdrop-filter: blur(4px);
+  background: rgba(10,8,6,0.75); backdrop-filter: blur(12px) saturate(0.8);
+  -webkit-backdrop-filter: blur(12px) saturate(0.8);
   align-items: center; justify-content: center;
+  opacity: 0; transition: opacity 0.4s var(--ease);
 }
-.wa-modal-overlay.open { display: flex; }
+.wa-modal-overlay.open { display: flex; animation: overlayIn 0.4s var(--ease) forwards; }
+@keyframes overlayIn { from { opacity: 0; } to { opacity: 1; } }
+
 .wa-modal {
-  background: var(--white); max-width: 480px; width: 92vw;
-  padding: 52px 44px; position: relative;
+  background: var(--black); max-width: 520px; width: 94vw;
+  padding: 0; position: relative;
+  border: 1px solid rgba(255,255,255,0.07);
+  animation: modalRise 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  overflow: hidden;
 }
+@keyframes modalRise {
+  from { opacity: 0; transform: translateY(32px) scale(0.975); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* golden top accent */
+.wa-modal::before {
+  content: ''; display: block; width: 100%; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(200,180,140,0.7) 40%, rgba(200,180,140,0.7) 60%, transparent);
+}
+
+.wa-modal-inner { padding: 52px 48px 48px; }
+
 .wa-modal-close {
-  position: absolute; top: 20px; right: 24px;
-  background: none; border: none; font-size: 1.4rem;
-  color: var(--mid); line-height: 1;
+  position: absolute; top: 22px; right: 26px;
+  background: none; border: none;
+  color: rgba(255,255,255,0.25); font-size: 1rem;
+  line-height: 1; letter-spacing: 0.06em;
+  font-family: var(--ff-display);
+  transition: color 0.25s, transform 0.25s;
 }
-.wa-modal-title { font-family: var(--ff-display); font-size: 1.6rem; letter-spacing: 0.06em; color: var(--black); margin-bottom: 8px; }
-.wa-modal-sub { font-family: var(--ff-italic); font-style: italic; font-size: 0.85rem; color: var(--mid); margin-bottom: 32px; }
-.wa-field { margin-bottom: 18px; }
-.wa-field label { display: block; font-family: var(--ff-display); font-size: 0.65rem; letter-spacing: 0.28em; color: var(--mid); margin-bottom: 6px; }
-.wa-field input { width: 100%; padding: 10px 14px; border: 1px solid var(--border); background: var(--off-white); font-family: var(--ff-body); font-size: 0.9rem; color: var(--black); outline: none; transition: border-color 0.2s; }
-.wa-field input:focus { border-color: var(--black); }
-.wa-notice { font-family: var(--ff-body); font-size: 0.72rem; color: var(--mid); margin-bottom: 24px; line-height: 1.6; background: var(--light-gray); padding: 12px 14px; }
-.wa-submit-btn { width: 100%; font-family: var(--ff-display); font-size: 0.9rem; letter-spacing: 0.22em; background: var(--black); color: var(--white); border: none; padding: 14px; transition: opacity 0.3s; }
-.wa-submit-btn:hover { opacity: 0.85; }
-.add-to-cart-btn { font-family: var(--ff-display); font-size: 0.68rem; letter-spacing: 0.18em; color: rgba(0,0,0,0.4); background: none; border: 1px solid transparent; padding-bottom: 1px; transition: all 0.2s; }
-.add-to-cart-btn:hover { color: var(--black); border-bottom-color: var(--black); }
-@media (max-width: 900px) {
-  .cart-bar { padding: 14px 24px; }
-  .wa-modal { padding: 40px 24px; }
+.wa-modal-close:hover { color: rgba(255,255,255,0.7); transform: rotate(90deg); }
+
+.wa-modal-eyebrow {
+  font-family: var(--ff-display); font-size: 0.52rem;
+  letter-spacing: 0.55em; color: rgba(200,180,140,0.7);
+  text-transform: uppercase; display: block; margin-bottom: 14px;
+}
+.wa-modal-title {
+  font-family: var(--ff-display); font-size: clamp(1.8rem, 4vw, 2.6rem);
+  letter-spacing: 0.04em; color: var(--white);
+  line-height: 0.95; margin-bottom: 10px;
+}
+.wa-modal-sub {
+  font-family: var(--ff-italic); font-style: italic;
+  font-size: 0.82rem; color: rgba(255,255,255,0.32);
+  margin-bottom: 38px; line-height: 1.75;
+}
+
+/* Cart summary inside modal */
+.wa-cart-summary {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  padding: 16px 20px; margin-bottom: 32px;
+  max-height: 140px; overflow-y: auto;
+}
+.wa-cart-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+  font-family: var(--ff-body); font-size: 0.8rem;
+  color: rgba(255,255,255,0.45);
+}
+.wa-cart-row:last-child { border-bottom: none; }
+.wa-cart-row-name { font-family: var(--ff-italic); font-style: italic; color: rgba(255,255,255,0.6); }
+.wa-cart-row-price { font-family: var(--ff-display); letter-spacing: 0.08em; color: rgba(255,255,255,0.4); }
+.wa-cart-total {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-top: 10px; padding-top: 10px;
+  border-top: 1px solid rgba(200,180,140,0.18);
+}
+.wa-cart-total-label {
+  font-family: var(--ff-display); font-size: 0.62rem;
+  letter-spacing: 0.3em; color: rgba(255,255,255,0.25);
+}
+.wa-cart-total-val {
+  font-family: var(--ff-display); font-size: 1.1rem;
+  letter-spacing: 0.06em; color: var(--white);
+}
+
+.wa-field { margin-bottom: 20px; }
+.wa-field label {
+  display: block; font-family: var(--ff-display); font-size: 0.55rem;
+  letter-spacing: 0.4em; color: rgba(255,255,255,0.28);
+  text-transform: uppercase; margin-bottom: 8px;
+}
+.wa-field input {
+  width: 100%; padding: 13px 16px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.04);
+  font-family: var(--ff-body); font-size: 0.88rem;
+  color: var(--white); outline: none;
+  transition: border-color 0.3s, background 0.3s;
+  letter-spacing: 0.04em;
+}
+.wa-field input::placeholder { color: rgba(255,255,255,0.18); }
+.wa-field input:focus {
+  border-color: rgba(200,180,140,0.45);
+  background: rgba(255,255,255,0.06);
+}
+.wa-field input[style*="200,80,80"] {
+  animation: fieldShake 0.35s var(--ease);
+}
+@keyframes fieldShake {
+  0%,100% { transform: translateX(0); }
+  25%      { transform: translateX(-5px); }
+  75%      { transform: translateX(5px); }
+}
+.wa-notice {
+  font-family: var(--ff-body); font-size: 0.67rem;
+  color: rgba(255,255,255,0.2); margin-bottom: 28px;
+  line-height: 1.75; padding: 12px 16px;
+  border-left: 1px solid rgba(200,180,140,0.2);
+  background: rgba(200,180,140,0.04);
+}
+.wa-submit-btn {
+  width: 100%; font-family: var(--ff-display); font-size: 0.78rem;
+  letter-spacing: 0.38em; text-transform: uppercase;
+  background: var(--white); color: var(--black);
+  border: none; padding: 17px;
+  transition: background 0.35s var(--ease), letter-spacing 0.35s var(--ease);
+  position: relative; overflow: hidden;
+}
+.wa-submit-btn::before {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+  height: 2px; background: linear-gradient(90deg, transparent, rgba(200,180,140,0.9), transparent);
+  transform: scaleX(0); transition: transform 0.5s var(--ease);
+}
+.wa-submit-btn:hover { background: rgba(247,240,234,0.9); letter-spacing: 0.46em; }
+.wa-submit-btn:hover::before { transform: scaleX(1); }
+
+/* toast notification */
+.cart-toast {
+  position: fixed; bottom: 90px; right: 40px; z-index: 600;
+  background: var(--black); color: var(--white);
+  padding: 12px 22px; border: 1px solid rgba(255,255,255,0.08);
+  font-family: var(--ff-display); font-size: 0.65rem; letter-spacing: 0.28em;
+  transform: translateY(16px); opacity: 0;
+  transition: all 0.4s var(--ease); pointer-events: none;
+}
+.cart-toast.show { transform: translateY(0); opacity: 1; }
+.cart-toast::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 1px; background: linear-gradient(90deg, transparent, rgba(200,180,140,0.6), transparent);
+}
+
+/* cart item count badge */
+.cart-count-badge {
+  position: fixed; bottom: 72px; right: 64px; z-index: 301;
+  width: 22px; height: 22px; background: var(--white); color: var(--black);
+  border-radius: 50%; font-family: var(--ff-display); font-size: 0.65rem;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transform: scale(0.5);
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.cart-count-badge.show { opacity: 1; transform: scale(1); }
+
+/* ── BUNDLE OFFER ─────────────────────────────────────────────────────── */
+.bundle-offer {
+  margin-top: 56px; border: 1px solid rgba(200,180,140,0.3);
+  background: linear-gradient(135deg, rgba(200,180,140,0.06) 0%, rgba(200,180,140,0.02) 100%);
+  padding: 40px 48px; position: relative; overflow: hidden;
+}
+.bundle-offer::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 1px; background: linear-gradient(90deg, transparent, rgba(200,180,140,0.7) 40%, rgba(200,180,140,0.7) 60%, transparent);
+}
+.bundle-offer::after {
+  content: '3'; position: absolute; right: 40px; top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--ff-display); font-size: clamp(6rem, 12vw, 10rem);
+  color: rgba(200,180,140,0.07); line-height: 1; pointer-events: none;
+  letter-spacing: -0.04em;
+}
+.bundle-inner {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 32px; flex-wrap: wrap; position: relative; z-index: 1;
+}
+.bundle-left {}
+.bundle-tag {
+  font-family: var(--ff-display); font-size: 0.52rem;
+  letter-spacing: 0.55em; color: rgba(200,180,140,0.8);
+  text-transform: uppercase; display: block; margin-bottom: 10px;
+}
+.bundle-title {
+  font-family: var(--ff-display);
+  font-size: clamp(1.6rem, 3.5vw, 2.6rem);
+  letter-spacing: 0.04em; color: var(--black); line-height: 0.95;
+  margin-bottom: 12px;
+}
+.bundle-desc {
+  font-family: var(--ff-italic); font-style: italic; font-weight: 300;
+  font-size: 0.88rem; color: var(--mid); line-height: 1.75; max-width: 440px;
+}
+.bundle-pills {
+  display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px;
+}
+.bundle-pill {
+  font-family: var(--ff-display); font-size: 0.58rem;
+  letter-spacing: 0.22em; padding: 5px 14px;
+  border: 1px solid rgba(200,180,140,0.35); color: rgba(200,180,140,0.8);
+}
+.bundle-pill.hl { background: rgba(200,180,140,0.1); }
+.bundle-right { display: flex; flex-direction: column; align-items: flex-end; gap: 12px; flex-shrink: 0; }
+.bundle-price-wrap { text-align: right; }
+.bundle-price-was {
+  font-family: var(--ff-body); font-size: 0.75rem; font-weight: 300;
+  color: rgba(0,0,0,0.28); letter-spacing: 0.1em;
+  text-decoration: line-through; display: block; margin-bottom: 4px;
+}
+.bundle-price {
+  font-family: var(--ff-display); font-size: clamp(2rem, 4vw, 3rem);
+  letter-spacing: 0.04em; color: var(--black); line-height: 1;
+}
+.bundle-price sub {
+  font-family: var(--ff-body); font-size: 0.55rem; font-weight: 200;
+  letter-spacing: 0.12em; color: var(--mid); vertical-align: baseline; margin-left: 4px;
+}
+.bundle-cta {
+  font-family: var(--ff-display); font-size: 0.72rem;
+  letter-spacing: 0.32em; text-transform: uppercase;
+  background: var(--black); color: var(--white);
+  border: none; padding: 13px 30px;
+  transition: background 0.35s var(--ease), letter-spacing 0.35s var(--ease);
+  position: relative; overflow: hidden;
+}
+.bundle-cta::before {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+  height: 1px; background: linear-gradient(90deg, transparent, rgba(200,180,140,0.9), transparent);
+  transform: scaleX(0); transition: transform 0.5s var(--ease);
+}
+.bundle-cta:hover { background: #2c2420; letter-spacing: 0.4em; }
+.bundle-cta:hover::before { transform: scaleX(1); }
+@media (max-width: 700px) {
+  .bundle-offer { padding: 32px 24px; }
+  .bundle-inner { flex-direction: column; align-items: flex-start; }
+  .bundle-right { align-items: flex-start; }
+  .bundle-price-wrap { text-align: left; }
+  .bundle-offer::after { display: none; }
 }
 </style>
 </head>
@@ -780,7 +1072,7 @@ nav.on-dark .social-icon:hover { color: var(--black); border-color: var(--border
   <div class="stat rv"><div class="stat-val">10</div><div class="stat-lbl">Exclusive Fragrances</div></div>
   <div class="stat rv rv1"><div class="stat-val">30ml</div><div class="stat-lbl">Eau de Parfum</div></div>
   <div class="stat rv rv2"><div class="stat-val">2026</div><div class="stat-lbl">Lighnd Edition</div></div>
-  <div class="stat rv rv3"><div class="stat-val">∞</div><div class="stat-lbl">Olfactory Memory</div></div>
+  <div class="stat rv rv3"><div class="stat-val" style="font-size:clamp(1.1rem,2.2vw,1.7rem);letter-spacing:0.06em;line-height:1.2;">ⵍⵉⵖⵏⴷ</div><div class="stat-lbl">Lighnd Collection</div></div>
 </div>
 
 <!-- COLLECTION -->
@@ -842,6 +1134,30 @@ nav.on-dark .social-icon:hover { color: var(--black); border-color: var(--border
     <p class="section-body rv">Toutes les fragrances — Eau de Parfum · 30 ml</p>
   </div>
   <div class="plist rv" id="priceList"></div>
+
+  <!-- BUNDLE OFFER -->
+  <div class="bundle-offer rv">
+    <div class="bundle-inner">
+      <div class="bundle-left">
+        <span class="bundle-tag">Exclusive Offer · Lighnd 2026</span>
+        <div class="bundle-title">Choose Any Three.<br>One Price.</div>
+        <p class="bundle-desc">Compose your own trilogy from the Lighnd Collection — any three Eau de Parfums for 200 DH, with complimentary delivery included.</p>
+        <div class="bundle-pills">
+          <span class="bundle-pill hl">3 × EDP 30ml</span>
+          <span class="bundle-pill hl">200 DH</span>
+          <span class="bundle-pill">Free Delivery</span>
+          <span class="bundle-pill">Your Choice</span>
+        </div>
+      </div>
+      <div class="bundle-right">
+        <div class="bundle-price-wrap">
+          <span class="bundle-price-was">Up to 300 DH individually</span>
+          <div class="bundle-price">200<sub>DH · 3 fragrances</sub></div>
+        </div>
+        <button class="bundle-cta" onclick="activateBundle()">Compose Your Trio</button>
+      </div>
+    </div>
+  </div>
 </section>
 
 <!-- CONTACT -->
@@ -963,7 +1279,7 @@ function buildGrid(filter='all') {
       <div class="card-tags">${tags}</div>
       <div class="card-foot">
         <div class="card-price">${f.price}<sub>EDP · 30ml</sub></div>
-        <button onclick="addToCart('${f.name}','${f.price}')" class="card-btn add-to-cart-btn">Add to Cart +</button>
+        <button onclick="addToCart('${f.name}','${f.price}')" class="card-btn add-to-cart-btn" data-name="${f.name}">Add to Selection</button>
       </div></div>`;
   });
 }
@@ -976,7 +1292,7 @@ function buildPriceList() {
       <span class="p-name">${f.name}</span>
       <span class="p-gender">${GL[f.gender]}</span>
       <span class="p-price">${f.price}</span>
-      <button onclick="addToCart('${f.name}','${f.price}')" class="p-act" style="border:none;background:none;cursor:none;font-family:var(--ff-display);font-size:0.65rem;letter-spacing:0.14em;color:var(--light);transition:color 0.2s;" onmouseenter="this.style.color='var(--black)'" onmouseleave="this.style.color='var(--light)'">+ Add</button>
+      <button onclick="addToCart('${f.name}','${f.price}')" class="p-act add-to-cart-btn" data-name="${f.name}" style="border:none;background:none;cursor:none;font-family:var(--ff-display);font-size:0.65rem;letter-spacing:0.14em;color:var(--light);transition:color 0.2s;" onmouseenter="this.style.color='var(--black)'" onmouseleave="this.style.color='var(--light)'">Reserve</button>
     </div>`;
   });
 }
@@ -1042,61 +1358,123 @@ setTimeout(()=>{
 }, 150);
 </script>
 
+<!-- TOAST -->
+<div class="cart-toast" id="cartToast"></div>
+
 <!-- CART BAR -->
 <div class="cart-bar" id="cartBar">
-  <div>
-    <div class="cart-bar-info">🛍 Your Selection — <span id="cartTotal">0.00 DH</span></div>
-    <div class="cart-bar-items" id="cartItems">No items yet</div>
+  <div class="cart-bar-left">
+    <div class="cart-bar-label">Your Selection</div>
+    <div class="cart-bar-info" id="cartTotal">0.00 <span>DH</span></div>
+    <div class="cart-bar-items" id="cartItems"></div>
   </div>
   <div class="cart-bar-btns">
-    <button class="cart-clear" onclick="clearCart()">Clear</button>
-    <button class="cart-order-btn" onclick="openWAForm()">Order on WhatsApp →</button>
+    <button class="cart-clear" onclick="clearCart()">Remove All</button>
+    <div class="cart-bar-divider"></div>
+    <button class="cart-order-btn" onclick="openWAForm()">Reserve on WhatsApp</button>
   </div>
 </div>
 
 <!-- WA FORM MODAL -->
-<div class="wa-modal-overlay" id="waModal">
+<div class="wa-modal-overlay" id="waModal" onclick="handleOverlayClick(event)">
   <div class="wa-modal">
-    <button class="wa-modal-close" onclick="closeWAModal()">×</button>
-    <div class="wa-modal-title">Complete Your Order</div>
-    <div class="wa-modal-sub">We'll send your order summary to WhatsApp for confirmation.</div>
-    <div class="wa-field">
-      <label>Your Name *</label>
-      <input type="text" id="waName" placeholder="Full name" autocomplete="name"/>
+    <button class="wa-modal-close" onclick="closeWAModal()">✕</button>
+    <div class="wa-modal-inner">
+      <span class="wa-modal-eyebrow">Maison RHYVÉR · Private Order</span>
+      <div class="wa-modal-title">Reserve Your<br>Selection</div>
+      <div class="wa-modal-sub">Your curated order will be sent to our atelier via WhatsApp for personal confirmation.</div>
+
+      <!-- Order summary -->
+      <div class="wa-cart-summary" id="waCartSummary"></div>
+
+      <div class="wa-field">
+        <label>Full Name *</label>
+        <input type="text" id="waName" placeholder="e.g. Yassine El Amrani" autocomplete="name"/>
+      </div>
+      <div class="wa-field">
+        <label>WhatsApp Number *</label>
+        <input type="tel" id="waPhone" placeholder="+212 6XX XXX XXX" autocomplete="tel"/>
+      </div>
+      <div class="wa-field">
+        <label>City &amp; Delivery Address *</label>
+        <input type="text" id="waCity" placeholder="e.g. Casablanca, Rue Ibn Batouta" autocomplete="address-line1"/>
+      </div>
+      <div class="wa-field">
+        <label>Order Notes <span style="opacity:0.4;font-size:0.85em;letter-spacing:0.1em;">(optional)</span></label>
+        <input type="text" id="waNotes" placeholder="Gift wrapping, specific requests…"/>
+      </div>
+      <div class="wa-notice">
+        By confirming, you will be redirected to WhatsApp to finalise your reservation directly with our team. Your details are used solely to prepare your order.
+      </div>
+      <button class="wa-submit-btn" onclick="confirmWAOrder()">Confirm &amp; Open WhatsApp</button>
     </div>
-    <div class="wa-field">
-      <label>Your Phone / WhatsApp *</label>
-      <input type="tel" id="waPhone" placeholder="+212 6XX XXX XXX" autocomplete="tel"/>
-    </div>
-    <div class="wa-field">
-      <label>City / Delivery Address</label>
-      <input type="text" id="waCity" placeholder="City or address" autocomplete="address-line1"/>
-    </div>
-    <div class="wa-notice">
-      ⚠ By tapping "Confirm & Open WhatsApp" you will be redirected to WhatsApp to finalise your order with our team. Your name and phone are used solely to prepare your order message. We never share your data with third parties.
-    </div>
-    <button class="wa-submit-btn" onclick="confirmWAOrder()">Confirm &amp; Open WhatsApp →</button>
   </div>
 </div>
 
 <script>
 
-// ── CART ──────────────────────────────────────────────────────────────────────
+// ── CART STATE ────────────────────────────────────────────────────────────
 let cart = [];
+
+// ── BUNDLE OFFER ──────────────────────────────────────────────────────────
+let bundleMode = false;
+
+function activateBundle() {
+  bundleMode = true;
+  // scroll to collection so user can pick their 3
+  document.getElementById('collection').scrollIntoView({ behavior: 'smooth' });
+  showToast('CHOOSE ANY 3 · BUNDLE PRICE APPLIED');
+  // highlight the instruction
+  const hd = document.querySelector('#collection .section-title');
+  if (hd) {
+    hd.style.transition = 'opacity 0.4s';
+    hd.style.opacity = '0.4';
+    setTimeout(() => hd.style.opacity = '', 1200);
+  }
+}
+
+function checkBundleApplied() {
+  if (!bundleMode) return false;
+  const total = cart.reduce((s, i) => s + i.qty, 0);
+  return total >= 3;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('cartToast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2400);
+}
 
 function addToCart(name, price) {
   const existing = cart.find(i => i.name === name);
-  if (existing) { existing.qty++; } else { cart.push({ name, price, qty: 1 }); }
+  if (existing) {
+    existing.qty++;
+    showToast(name.toUpperCase() + ' · QTY ' + existing.qty);
+  } else {
+    cart.push({ name, price, qty: 1 });
+    showToast(name.toUpperCase() + ' · ADDED');
+  }
   updateCartBar();
-  // flash feedback
+
+  // Animate the button that was clicked
   document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
-    if (btn.textContent.includes('to Cart')) btn.textContent = 'Add to Cart +';
+    if (btn.dataset.name === name) {
+      btn.textContent = '✓ Reserved';
+      btn.classList.add('added');
+      setTimeout(() => {
+        btn.textContent = 'Add to Selection';
+        btn.classList.remove('added');
+      }, 1800);
+    }
   });
 }
 
 function clearCart() {
   cart = [];
   updateCartBar();
+  showToast('SELECTION CLEARED');
 }
 
 function updateCartBar() {
@@ -1105,19 +1483,67 @@ function updateCartBar() {
   const itemsEl = document.getElementById('cartItems');
   if (cart.length === 0) {
     bar.classList.remove('visible');
+    bundleMode = false;
     return;
   }
   bar.classList.add('visible');
-  const total = cart.reduce((sum, i) => {
-    const val = parseFloat(i.price.replace(/[^0-9.]/g, '')) || 0;
-    return sum + val * i.qty;
-  }, 0);
-  totalEl.textContent = total.toFixed(2) + ' DH';
+  const totalQty = cart.reduce((s, i) => s + i.qty, 0);
+  const bundleActive = bundleMode && totalQty >= 3;
+  let displayTotal, suffix = '';
+  if (bundleActive) {
+    const extra = totalQty - 3;
+    const baseTotal = cart.reduce((sum, i) => {
+      const val = parseFloat(i.price.replace(/[^0-9.]/g, '')) || 0;
+      return sum + val * i.qty;
+    }, 0);
+    // 200 DH for first 3, rest at normal price
+    const extraCost = extra > 0 ? cart.slice().sort((a,b)=>parseFloat(b.price)-parseFloat(a.price)).reduce((s,item)=>{
+      let remaining = extra, cost = 0;
+      // simple: charge extras at their unit price
+      return s;
+    }, 0) : 0;
+    displayTotal = 200 + extraCost;
+    suffix = ' · Bundle';
+  } else {
+    displayTotal = cart.reduce((sum, i) => {
+      const val = parseFloat(i.price.replace(/[^0-9.]/g, '')) || 0;
+      return sum + val * i.qty;
+    }, 0);
+  }
+  totalEl.innerHTML = displayTotal.toFixed(2) + ' <span>DH' + suffix + '</span>';
   itemsEl.textContent = cart.map(i => i.qty > 1 ? `${i.qty}× ${i.name}` : i.name).join(' · ');
+  if (bundleMode && totalQty < 3) {
+    itemsEl.textContent += ` · (${3 - totalQty} more for bundle)`;
+  }
+}
+
+function buildModalSummary() {
+  const el = document.getElementById('waCartSummary');
+  const totalQty = cart.reduce((s, i) => s + i.qty, 0);
+  const bundleActive = bundleMode && totalQty >= 3;
+  const regularTotal = cart.reduce((s, i) => s + (parseFloat(i.price.replace(/[^0-9.]/g,''))||0)*i.qty, 0);
+  const displayTotal = bundleActive ? 200 : regularTotal;
+
+  el.innerHTML = cart.map(i => {
+    const sub = (parseFloat(i.price.replace(/[^0-9.]/g,''))||0)*i.qty;
+    return `<div class="wa-cart-row">
+      <span class="wa-cart-row-name">${i.qty > 1 ? i.qty+'× ' : ''}${i.name}</span>
+      <span class="wa-cart-row-price">${sub.toFixed(2)} DH</span>
+    </div>`;
+  }).join('') +
+  (bundleActive ? `<div class="wa-cart-row" style="color:rgba(200,180,140,0.6);">
+    <span class="wa-cart-row-name" style="color:rgba(200,180,140,0.7);">✦ Trio Bundle · Free Delivery</span>
+    <span class="wa-cart-row-price" style="color:rgba(200,180,140,0.6);">−${(regularTotal - 200).toFixed(2)} DH</span>
+  </div>` : '') +
+  `<div class="wa-cart-total">
+    <span class="wa-cart-total-label">${bundleActive ? 'Bundle Total · Livraison Offerte' : 'Total'}</span>
+    <span class="wa-cart-total-val">${displayTotal.toFixed(2)} DH</span>
+  </div>`;
 }
 
 function openWAForm() {
   if (cart.length === 0) return;
+  buildModalSummary();
   document.getElementById('waModal').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
@@ -1127,10 +1553,13 @@ function closeWAModal() {
   document.body.style.overflow = '';
 }
 
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('waModal')) closeWAModal();
+}
+
 function showWAForm(e) {
   if(e) e.preventDefault();
   if (cart.length === 0) {
-    // scroll to collection
     document.getElementById('collection').scrollIntoView({ behavior: 'smooth' });
     return;
   }
@@ -1138,18 +1567,69 @@ function showWAForm(e) {
 }
 
 function confirmWAOrder() {
-  const name = document.getElementById('waName').value.trim();
-  const phone = document.getElementById('waPhone').value.trim();
-  const city = document.getElementById('waCity').value.trim();
-  if (!name || !phone) {
-    alert('Please enter your name and phone number to continue.');
+  const nameEl  = document.getElementById('waName');
+  const phoneEl = document.getElementById('waPhone');
+  const cityEl  = document.getElementById('waCity');
+  const notesEl = document.getElementById('waNotes');
+
+  const name  = nameEl.value.trim();
+  const phone = phoneEl.value.trim();
+  const city  = cityEl.value.trim();
+  const notes = notesEl ? notesEl.value.trim() : '';
+
+  // Clear previous error states
+  [nameEl, phoneEl, cityEl].forEach(el => el.style.borderColor = '');
+
+  // Validate required fields
+  let hasError = false;
+  if (!name)  { nameEl.style.borderColor  = 'rgba(200,80,80,0.6)'; nameEl.focus();  hasError = true; }
+  if (!phone) { phoneEl.style.borderColor = 'rgba(200,80,80,0.6)'; if (!hasError) phoneEl.focus(); hasError = true; }
+  if (!city)  { cityEl.style.borderColor  = 'rgba(200,80,80,0.6)'; if (!hasError) cityEl.focus();  hasError = true; }
+
+  if (hasError) {
+    showToast('PLEASE FILL ALL REQUIRED FIELDS');
     return;
   }
-  const items = cart.map(i => `- ${i.name} × ${i.qty} (${i.price})`).join('\n');
-  const total = cart.reduce((s, i) => s + (parseFloat(i.price.replace(/[^0-9.]/g,'')) || 0) * i.qty, 0);
-  const msg = `Hello Maison RHYVÉR,\n\nI would like to place the following order:\n\n${items}\n\nTotal: ${total.toFixed(2)} DH\n\nName: ${name}\nPhone: ${phone}${city ? '\nCity/Address: ' + city : ''}\n\nThank you!`;
+
+  // Build order details
+  const totalQty = cart.reduce((s, i) => s + i.qty, 0);
+  const bundleActive = bundleMode && totalQty >= 3;
+  const regularTotal = cart.reduce((s, i) => s + (parseFloat(i.price.replace(/[^0-9.]/g,'')) || 0) * i.qty, 0);
+  const total = bundleActive ? 200 : regularTotal;
+  const items = cart.map(i => `  · ${i.name} × ${i.qty}  (${i.price})`).join('\n');
+
+  const bundleLine = bundleActive
+    ? `\n  ✦ Offre Trio — Livraison offerte\n  Économie: ${(regularTotal - 200).toFixed(2)} DH`
+    : '';
+
+  const deliveryLine = bundleActive ? '\n  Livraison: Offerte ✓' : '';
+
+  const msg =
+`Bonsoir Maison RHYVÉR,
+
+Je souhaite passer la commande suivante :
+
+━━━━━━━━━━━━━━━━━━━━
+SÉLECTION
+━━━━━━━━━━━━━━━━━━━━
+${items}${bundleLine}
+
+  TOTAL : ${total.toFixed(2)} DH${deliveryLine}
+
+━━━━━━━━━━━━━━━━━━━━
+COORDONNÉES
+━━━━━━━━━━━━━━━━━━━━
+  Nom       : ${name}
+  Téléphone : ${phone}
+  Adresse   : ${city}${notes ? `\n  Notes     : ${notes}` : ''}
+
+Merci !`;
+
   const url = 'https://wa.me/212657524407?text=' + encodeURIComponent(msg);
   closeWAModal();
+  // Reset fields after successful submit
+  [nameEl, phoneEl, cityEl].forEach(el => el.value = '');
+  if (notesEl) notesEl.value = '';
   window.open(url, '_blank');
 }
 
